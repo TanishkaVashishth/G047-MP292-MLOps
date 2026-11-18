@@ -1,0 +1,36 @@
+investigation_summary:
+  dataset: train.csv
+  total_records: 1000
+
+  target_leakage:
+    column: litres_paid_in_passbook
+    correlation: 0.998526
+    status: suspected
+    action: verify_timing_and_exclude_if_leakage
+
+  temperature_anomaly:
+    column: temp_c
+    invalid_value: 999.0
+    affected_records: 42
+    percentage: 4.2
+    status: confirmed
+    action: replace_with_missing_then_impute
+
+  duplicate_records:
+    duplicate_record_ids: 0
+    status: no_duplicates_found
+
+  categorical_values:
+    breed_mix:
+      - mixed
+      - desi
+      - crossbred
+    village_cluster:
+      - Cluster A
+      - Cluster B
+      - Cluster C
+
+  further_investigation:
+    - feed_unit_consistency
+    - target_outliers
+    - sensor_stability
