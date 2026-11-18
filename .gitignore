@@ -1,0 +1,32 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environment variables
+.env
+.env.*
+
+# MLflow local artifacts
+mlruns/
+mlartifacts/
+mlflow.db
+
+# DVC cache
+.dvc/cache/
+
+# Raw datasets (tracked using DVC instead)
+data/raw/*.csv
+
+# Generated outputs
+models/
+logs/
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
