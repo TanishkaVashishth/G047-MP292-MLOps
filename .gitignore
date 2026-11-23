@@ -7,6 +7,13 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
+# Local temporary files and directories
+.tmp/
+tmp/
+temp/
+*.tmp
+*.temp
+
 # Environment variables
 .env
 .env.*
@@ -14,7 +21,6 @@ __pycache__/
 # MLflow local artifacts
 mlruns/
 mlartifacts/
-mlflow.db
 
 # DVC cache
 .dvc/cache/
@@ -23,7 +29,8 @@ mlflow.db
 data/raw/*.csv
 
 # Generated outputs
-models/
+models/*
+!models/model.joblib
 logs/
 
 # Editor and OS files
