@@ -44,3 +44,25 @@ $env:PYTHONPATH = "src"
 py -3.12 -m mp292.train
 py -3.12 -m pytest -v
 ```
+
+## Stage 3 service
+
+Install the pinned dependencies with Python 3.12, then run from the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m pytest -q
+python -m uvicorn app.main:app --port 8000
+```
+
+Open `http://localhost:8000/docs` to try the eight-field prediction request.
+The service uses the exported v1 pipeline. Date-derived inputs missing from an
+API request use the pipeline's training-fitted median imputation.
+
+```powershell
+docker build -t mp292-api:1.0 .
+docker run --rm -p 8000:8000 mp292-api:1.0
+```
+
+Kubernetes manifests are under `k8s/`. For a local cluster, load the image into
+the cluster before applying them.

@@ -1,0 +1,10 @@
+**
+!requirements.txt
+!params.yaml
+!app/
+!app/**
+!src/
+!src/**
+!models/
+!models/model.joblib
+**/__pycache__

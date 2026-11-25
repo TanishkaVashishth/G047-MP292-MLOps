@@ -1,40 +1,32 @@
-from fastapi import FastAPI
+import math
+
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, ConfigDict, Field
+
+from app.main import app
 
 
-class Input(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    cows: int = Field(le=350)
-    buffaloes: int
-    fodder_price_rs: float = Field(ge=5)
-    temp_c: float | None
-    vet_visits: int
-    feed_kg: float
-    breed_mix: str
-    village_cluster: str
+client = TestClient(app)
+PAYLOAD = {
+    "cows": 350, "buffaloes": 85, "fodder_price_rs": 5, "temp_c": 28.0,
+    "vet_visits": 3, "feed_kg": 1500.0, "breed_mix": "mixed",
+    "village_cluster": "Cluster A",
+}
 
 
-app = FastAPI()
-
-
-@app.post("/predict")
-def predict(body: Input):
-    return {"prediction": float(body.cows + body.buffaloes)}
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
-def test_prediction_endpoint_and_input_validation():
-    client = TestClient(app)
-    payload = {"cows": 30, "buffaloes": 8, "fodder_price_rs": 12.0, "temp_c": None,
-               "vet_visits": 1, "feed_kg": 40.0, "breed_mix": "desi", "village_cluster": "Cluster A"}
-    response = client.post("/predict", json=payload)
-    assert response.status_code == 200 and response.json()["prediction"] == 38.0
+def test_health():
     assert client.get("/health").json() == {"status": "ok"}
-    assert client.post("/predict", json={**payload, "cows": 351}).status_code == 422
-    assert client.post("/predict", json={**payload, "fodder_price_rs": 4}).status_code == 422
-    assert client.post("/predict", json={**payload, "unrequested": 1}).status_code == 422
+
+
+def test_prediction_with_exported_model():
+    response = client.post("/predict", json=PAYLOAD)
+    assert response.status_code == 200
+    assert math.isfinite(response.json()["prediction"])
+
+
+def test_invalid_requests_do_not_load_model(monkeypatch):
+    def unexpected_model_load():
+        raise AssertionError("Invalid input reached the model loader")
+
+    monkeypatch.setattr("app.main.load_model", unexpected_model_load)
+    for fields in ({"cows": 351}, {"fodder_price_rs": 4.99}, {"date": "2026-07-01"}):
+        assert client.post("/predict", json={**PAYLOAD, **fields}).status_code == 422
